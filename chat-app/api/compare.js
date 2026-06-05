@@ -4,8 +4,8 @@
 // Runs both in parallel so the reveal is fast.
 
 import { z } from 'zod';
-import { runAgentOnce, runVanillaOnce } from './_lib/agent.js';
-import { getFallback, VANILLA_FALLBACK } from './_lib/fallbacks.js';
+import { runAgentOnce, runVanillaOnce } from '../lib/agent.js';
+import { getFallback, VANILLA_FALLBACK } from '../lib/fallbacks.js';
 
 const Body = z.object({
   message: z.string().min(1).max(2000),

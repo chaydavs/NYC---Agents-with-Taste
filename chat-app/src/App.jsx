@@ -37,15 +37,15 @@ function ChatPane() {
   const sources = cardsMsg?.sources || [];
 
   return (
-    <div className="min-h-screen bg-gray-50 text-left flex flex-col">
+    <div className="min-h-screen bg-[#FAF7F2] text-left flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm">
-          🍴
+      <header className="bg-white border-b border-[#EAD9C5] px-6 py-3 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-full bg-[#7B4B27] flex items-center justify-center text-white font-bold text-sm">
+          B
         </div>
         <div>
-          <p className="text-sm font-semibold text-gray-800">Food Agent</p>
-          <p className="text-xs text-green-500 font-medium">● Grounded in People Inc. editorial</p>
+          <p className="text-sm font-bold text-[#3F2713] tracking-tight">BananaBread</p>
+          <p className="text-xs text-[#7B4B27] font-medium">● Grounded in People Inc. editorial</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
           <select
@@ -89,10 +89,10 @@ function ChatPane() {
                   />
                   {m.cards && m.cards.length > 0 && (
                     <div className="ml-11 mb-4">
-                      <p className="text-[11px] font-semibold text-violet-600 uppercase tracking-wide mb-2">
+                      <p className="text-[11px] font-semibold text-[#7B4B27] uppercase tracking-wide mb-2">
                         {m.cards.length} grounded recommendation{m.cards.length > 1 ? 's' : ''}
                       </p>
-                      <div className="space-y-2 border-l-2 border-violet-100 pl-3">
+                      <div className="space-y-2 border-l-2 border-[#EAD9C5] pl-3">
                       {m.cards.map((card, ci) =>
                         card.type === 'place' ? (
                           <PlaceCard
@@ -157,7 +157,7 @@ function ChatPane() {
               <ol className="space-y-2">
                 {sources.map((s, i) => (
                   <li key={i} className="text-xs text-gray-600">
-                    <a href={s.url} target="_blank" rel="noreferrer" className="text-violet-700 hover:underline">
+                    <a href={s.url} target="_blank" rel="noreferrer" className="text-[#5E3A1E] hover:underline">
                       [{i + 1}] {s.publisher ? `${s.publisher} — ` : ''}{s.title}
                     </a>
                   </li>

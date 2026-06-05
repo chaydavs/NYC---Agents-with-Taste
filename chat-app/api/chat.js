@@ -2,9 +2,9 @@
 // Primary path is LIVE Redpine grounding. Fallbacks fire only on failure or ?demo=1.
 
 import { z } from 'zod';
-import { runAgent } from './_lib/agent.js';
-import { mergeVariety } from './_lib/variety.js';
-import { getFallback } from './_lib/fallbacks.js';
+import { runAgent } from '../lib/agent.js';
+import { mergeVariety } from '../lib/variety.js';
+import { getFallback } from '../lib/fallbacks.js';
 
 const Body = z.object({
   message: z.string().min(1).max(2000),

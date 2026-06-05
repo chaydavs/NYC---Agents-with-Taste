@@ -20,7 +20,7 @@ export default function PlaceCard({ card, onTrySomethingElse }) {
             href={mapsUrl}
             target="_blank"
             rel="noreferrer"
-            className="text-xs font-medium text-violet-700 hover:text-violet-900"
+            className="text-xs font-medium text-[#5E3A1E] hover:text-[#3F2713]"
           >
             Open in Maps →
           </a>

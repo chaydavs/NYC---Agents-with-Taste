@@ -2,7 +2,7 @@
 // Run: node --env-file=../.env scripts/smoke.js   (from chat-app/)
 //  or: node --env-file=.env chat-app/scripts/smoke.js  (from repo root)
 
-import { runAgentOnce, runVanillaOnce } from '../api/_lib/agent.js';
+import { runAgentOnce, runVanillaOnce } from '../lib/agent.js';
 
 const QUERY = 'What should I cook tonight? Got chicken thighs and feeling lazy.';
 const profile = {

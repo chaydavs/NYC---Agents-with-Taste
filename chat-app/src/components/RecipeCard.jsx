@@ -23,7 +23,7 @@ export default function RecipeCard({ card, onTrySomethingElse }) {
               href={card.url}
               target="_blank"
               rel="noreferrer"
-              className="text-xs font-medium text-violet-700 hover:text-violet-900"
+              className="text-xs font-medium text-[#5E3A1E] hover:text-[#3F2713]"
             >
               Get the full recipe →
             </a>

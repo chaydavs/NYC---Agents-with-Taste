@@ -8,7 +8,7 @@ const EMPTY_RECOMMENDED = { cuisines: [], proteins: [], techniques: [] };
 // The 3 conversational onboarding questions (NOT a form). Free-text answers map
 // directly into the user_profile fields the agent reads each turn.
 export const ONBOARDING_QUESTIONS = [
-  { field: 'eats_summary', q: "Hi! I'm your food agent — everything I suggest is pulled from real editorial sources, never made up. First: what's your situation with food? Anything I should know about how you eat day to day?" },
+  { field: 'eats_summary', q: "Hi! I'm BananaBread — your food agent. Everything I suggest is pulled from real editorial sources, never made up. First: what's your situation with food? Anything I should know about how you eat day to day?" },
   { field: 'dines', q: 'Got it. Where do you usually eat — mostly home, mostly out, or a mix of both?' },
   { field: 'restrictions', q: "Last one: anything you absolutely don't or can't eat?" },
 ];

@@ -7,9 +7,9 @@ export default function SourceBadge({ brand, url, small }) {
     : 'text-xs px-2 py-1';
   const inner = (
     <span
-      className={`inline-flex items-center gap-1 rounded-full bg-violet-50 text-violet-700 font-medium ${cls} border border-violet-100`}
+      className={`inline-flex items-center gap-1 rounded-full bg-[#F3E9DC] text-[#5E3A1E] font-medium ${cls} border border-[#EAD9C5]`}
     >
-      <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+      <span className="w-1.5 h-1.5 rounded-full bg-[#9A6B43]" />
       {label}
     </span>
   );

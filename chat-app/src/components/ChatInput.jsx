@@ -19,12 +19,12 @@ export default function ChatInput({ onSend, disabled, placeholder }) {
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder || 'Type a message…'}
         disabled={disabled}
-        className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:bg-gray-50"
+        className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#A9784F] disabled:bg-gray-50"
       />
       <button
         type="submit"
         disabled={disabled || !value.trim()}
-        className="bg-violet-600 hover:bg-violet-700 disabled:bg-violet-300 text-white text-sm font-medium px-5 py-3 rounded-xl transition"
+        className="bg-[#7B4B27] hover:bg-[#5E3A1E] disabled:bg-[#C9A883] text-white text-sm font-medium px-5 py-3 rounded-xl transition"
       >
         Send
       </button>

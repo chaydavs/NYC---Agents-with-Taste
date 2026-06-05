@@ -28,10 +28,10 @@ function GroundedView({ grounded }) {
   const brands = [...new Set((grounded?.sources || []).map((s) => s.publisher).filter(Boolean))];
   return (
     <div>
-      <div className="inline-flex items-center gap-2 mb-3 text-xs font-medium text-violet-700 bg-violet-50 border border-violet-200 rounded-full px-3 py-1">
+      <div className="inline-flex items-center gap-2 mb-3 text-xs font-medium text-[#5E3A1E] bg-[#F3E9DC] border border-[#E8D8C4] rounded-full px-3 py-1">
         ● Grounded in People Inc. editorial · verified sources
       </div>
-      <div className="bg-white border border-violet-200 rounded-2xl p-4 mb-3 text-sm text-gray-800 leading-relaxed min-h-[80px]">
+      <div className="bg-white border border-[#E8D8C4] rounded-2xl p-4 mb-3 text-sm text-gray-800 leading-relaxed min-h-[80px]">
         {grounded?.text || '…'}
       </div>
       <div className="space-y-3">
@@ -107,12 +107,12 @@ export default function CompareModal({ profile, initialQuery, onClose }) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+            className="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A9784F]"
           />
           <button
             onClick={run}
             disabled={loading}
-            className="bg-violet-600 hover:bg-violet-700 disabled:bg-violet-300 text-white text-sm font-medium px-4 py-2 rounded-xl"
+            className="bg-[#7B4B27] hover:bg-[#5E3A1E] disabled:bg-[#C9A883] text-white text-sm font-medium px-4 py-2 rounded-xl"
           >
             {loading ? 'Running…' : 'Run'}
           </button>
@@ -136,7 +136,7 @@ export default function CompareModal({ profile, initialQuery, onClose }) {
                 <div className="inline-flex bg-gray-100 rounded-full p-1">
                   <button
                     className={`px-4 py-2 text-xs font-semibold rounded-full transition ${
-                      view === 'grounded' ? 'bg-violet-600 text-white shadow' : 'text-gray-500'
+                      view === 'grounded' ? 'bg-[#7B4B27] text-white shadow' : 'text-gray-500'
                     }`}
                     onClick={() => setView('grounded')}
                   >
