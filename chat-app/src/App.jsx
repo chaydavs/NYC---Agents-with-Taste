@@ -24,7 +24,7 @@ function lastUserMessage(messages) {
 }
 
 function ChatPane() {
-  const { phase, messages, busy, answerOnboarding, sendMessage, loadPersona, profile } = useChat();
+  const { messages, busy, sendMessage, loadPersona, profile } = useChat();
   const bottomRef = useRef(null);
   const [showCompare, setShowCompare] = useState(false);
 
@@ -32,7 +32,7 @@ function ChatPane() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const onSend = (text) => (phase === 'onboarding' ? answerOnboarding(text) : sendMessage(text));
+  const onSend = (text) => sendMessage(text);
   const cardsMsg = latestCardsMessage(messages);
   const sources = cardsMsg?.sources || [];
 
@@ -85,7 +85,7 @@ function ChatPane() {
               ) : (
                 <div key={i}>
                   <BotBubble
-                    text={m.text || (m.streaming ? '🔍 Searching People Inc. editorial…' : '')}
+                    text={m.text || (m.streaming ? 'BananaBread is typing…' : '')}
                   />
                   {m.cards && m.cards.length > 0 && (
                     <div className="ml-11 mb-4">
@@ -124,9 +124,7 @@ function ChatPane() {
             <ChatInput
               onSend={onSend}
               disabled={busy}
-              placeholder={
-                phase === 'onboarding' ? 'Type your answer…' : 'What should I cook tonight?'
-              }
+              placeholder="Ask BananaBread — what to cook, where to eat, plan a week…"
             />
           </div>
         </div>

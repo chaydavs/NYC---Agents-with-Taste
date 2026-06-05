@@ -9,7 +9,7 @@ import { verifyCards } from './verify.js';
 
 const MODEL = 'claude-sonnet-4-5';
 const MCP_BETA = 'mcp-client-2025-04-04';
-const MAX_TOKENS = 1500;
+const MAX_TOKENS = 900;
 
 let _client = null;
 function client() {
