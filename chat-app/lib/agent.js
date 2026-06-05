@@ -4,8 +4,12 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { AGENT_SYSTEM_PROMPT, VANILLA_PROMPT, buildContextBlock } from './prompt.js';
-import { redpineServer, extractSources, brandKey } from './redpine.js';
+import { redpineServer, extractSources, extractWebSources, brandKey } from './redpine.js';
 import { verifyCards } from './verify.js';
+
+// Fallback search when licensed editorial has no coverage (e.g. a specific city's
+// vegetarian ramen restaurants). Editorial is always tried first (see prompt).
+const WEB_SEARCH_TOOL = { type: 'web_search_20250305', name: 'web_search', max_uses: 2 };
 
 const MODEL = 'claude-sonnet-4-5';
 const MCP_BETA = 'mcp-client-2025-04-04';
@@ -64,6 +68,25 @@ function textFromContent(content) {
     .join('');
 }
 
+const TOOL_RESULT_TYPES = new Set(['mcp_tool_result', 'tool_result', 'web_search_tool_result']);
+
+// The model narrates between tool calls ("editorial has nothing, searching web…").
+// The user-facing answer is only the text AFTER the last tool result — return that,
+// so the bubble shows the final sentence, not the reasoning trace.
+function finalTextSegment(content) {
+  const blocks = content || [];
+  let lastTool = -1;
+  blocks.forEach((b, i) => {
+    if (TOOL_RESULT_TYPES.has(b?.type)) lastTool = i;
+  });
+  const seg = blocks
+    .slice(lastTool + 1)
+    .filter((b) => b?.type === 'text')
+    .map((b) => b.text)
+    .join('');
+  return seg || textFromContent(content);
+}
+
 function tokens(s) {
   return new Set((s || '').toLowerCase().match(/[a-z]{3,}/g) || []);
 }
@@ -103,6 +126,7 @@ export async function runAgent({ message, profile, recommended, history, onDelta
     system: systemBlock(),
     messages,
     mcp_servers: [redpineServer()],
+    tools: [WEB_SEARCH_TOOL],
     betas: [MCP_BETA],
   };
 
@@ -120,18 +144,26 @@ export async function runAgent({ message, profile, recommended, history, onDelta
   }
   finalMessage = await stream.finalMessage();
 
-  const fullText = textFromContent(finalMessage.content);
+  const fullText = finalTextSegment(finalMessage.content);
   const { spoken, cards, used } = parseAssistantText(fullText);
-  const { sources, toolCalls } = extractSources(finalMessage);
-  const { verified, dropped } = verifyCards(cards, sources);
-  const enriched = enrichCards(verified, sources);
+  const { sources: editorialSources, toolCalls } = extractSources(finalMessage);
+  const webSources = extractWebSources(finalMessage);
+  const allSources = [...editorialSources, ...webSources];
+  const { verified, dropped } = verifyCards(cards, allSources);
+  const enriched = enrichCards(verified, allSources);
 
   return {
     spoken,
     cards: enriched,
-    sources,
+    sources: allSources,
     used,
-    meta: { toolCalls, droppedCards: dropped.length, model: MODEL },
+    meta: {
+      toolCalls,
+      webResults: webSources.length,
+      usedWebFallback: webSources.length > 0,
+      droppedCards: dropped.length,
+      model: MODEL,
+    },
     assistantText: fullText, // for appending to history next turn
   };
 }

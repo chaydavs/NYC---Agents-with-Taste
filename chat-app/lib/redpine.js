@@ -39,6 +39,40 @@ export function brandKey(brand) {
     .replace(/[^a-z0-9]/g, '');
 }
 
+export function hostOf(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
+// Web-search fallback results (Anthropic web_search tool). Surfaced as sources
+// alongside editorial, flagged web:true so the UI can label them distinctly.
+export function extractWebSources(finalMessage) {
+  const blocks = finalMessage?.content || [];
+  const seen = new Set();
+  const out = [];
+  for (const b of blocks) {
+    if (b?.type === 'web_search_tool_result' && Array.isArray(b.content)) {
+      for (const r of b.content) {
+        if (r?.type === 'web_search_result' && r.url && !seen.has(r.url)) {
+          seen.add(r.url);
+          out.push({
+            title: r.title || hostOf(r.url),
+            publisher: hostOf(r.url),
+            url: r.url,
+            snippet: '',
+            published_at: r.page_age || '',
+            web: true,
+          });
+        }
+      }
+    }
+  }
+  return out;
+}
+
 // Redpine returns no canonical URL, and brand slugs don't map cleanly to live
 // paths (they 404). A site-scoped search on the exact title reliably lands on
 // the real article and never dead-ends — the right call for clickable provenance.

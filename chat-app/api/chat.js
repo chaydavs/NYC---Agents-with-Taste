@@ -90,6 +90,7 @@ export default async function handler(req, res) {
     });
 
     sse(res, 'result', {
+      text: result.spoken, // clean, complete sentence — replaces the truncated stream
       cards: result.cards,
       sources: result.sources,
       used: result.used,

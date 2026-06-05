@@ -43,8 +43,10 @@ export function ChatProvider({ children }) {
           payload: { message: userText, user_profile: profile, already_recommended: recommended, history },
           onDelta: (delta) => patchBot((m) => ({ text: m.text + delta })),
           onResult: (result) => {
+            // Prefer the server's clean, complete sentence over the streamed text,
+            // which can be truncated where the json fence began.
             patchBot((m) => ({
-              text: m.text || result.text || '',
+              text: result.text || m.text || '',
               cards: result.cards || [],
               sources: result.sources || [],
               streaming: false,
