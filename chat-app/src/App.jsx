@@ -1,58 +1,151 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChatProvider } from './context/ChatContext';
-import StepIndicator from './components/StepIndicator';
-import StepUserInfo from './steps/StepUserInfo';
-import StepFitness from './steps/StepFitness';
-import StepLocation from './steps/StepLocation';
-import StepDietaryRestrictions from './steps/StepDietaryRestrictions';
-import StepSummary from './steps/StepSummary';
+import { ChatProvider, useChat } from './context/ChatContext';
+import { PERSONAS } from './personas';
+import BotBubble from './components/BotBubble';
+import UserBubble from './components/UserBubble';
+import ChatInput from './components/ChatInput';
+import RecipeCard from './components/RecipeCard';
+import PlaceCard from './components/PlaceCard';
+import GroundingBar from './components/GroundingBar';
+import CompareModal from './components/CompareModal';
 
-const STEPS = [
-  { component: StepUserInfo, label: 'About you' },
-  { component: StepFitness, label: 'Fitness & Diet' },
-  { component: StepLocation, label: 'Location' },
-  { component: StepDietaryRestrictions, label: 'Restrictions' },
-  { component: StepSummary, label: 'Summary' },
-];
+function latestCardsMessage(messages) {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].cards && messages[i].cards.length > 0) return messages[i];
+  }
+  return null;
+}
 
-function ChatFlow() {
-  const [currentStep, setCurrentStep] = useState(0);
+function lastUserMessage(messages) {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === 'user') return messages[i].text;
+  }
+  return '';
+}
+
+function ChatPane() {
+  const { phase, messages, busy, answerOnboarding, sendMessage, loadPersona, profile } = useChat();
   const bottomRef = useRef(null);
+  const [showCompare, setShowCompare] = useState(false);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [currentStep]);
+  }, [messages]);
 
-  const goNext = () => setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1));
+  const onSend = (text) => (phase === 'onboarding' ? answerOnboarding(text) : sendMessage(text));
+  const cardsMsg = latestCardsMessage(messages);
+  const sources = cardsMsg?.sources || [];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
+    <div className="min-h-screen bg-gray-50 text-left flex flex-col">
       {/* Header */}
-      <div className="w-full max-w-xl mb-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm">
-            A
+      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm">
+          🍴
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-gray-800">Food Agent</p>
+          <p className="text-xs text-green-500 font-medium">● Grounded in People Inc. editorial</p>
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <select
+            onChange={(e) => {
+              const p = PERSONAS.find((x) => x.id === e.target.value);
+              if (p) loadPersona(p);
+            }}
+            defaultValue=""
+            className="text-xs border border-gray-300 rounded-lg px-2 py-1.5 text-gray-600"
+          >
+            <option value="" disabled>
+              Load persona…
+            </option>
+            {PERSONAS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => setShowCompare(true)}
+            className="text-xs font-medium bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700"
+          >
+            Compare vs vanilla
+          </button>
+        </div>
+      </header>
+
+      {/* Two columns */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] overflow-hidden">
+        {/* Left: chat */}
+        <div className="flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            {messages.map((m, i) =>
+              m.role === 'user' ? (
+                <UserBubble key={i} text={m.text} />
+              ) : (
+                <BotBubble
+                  key={i}
+                  text={m.text || (m.streaming ? '🔍 Searching People Inc. editorial…' : '')}
+                />
+              )
+            )}
+            <div ref={bottomRef} />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-800">Wellness Assistant</p>
-            <p className="text-xs text-green-500 font-medium">● Online</p>
+          <div className="border-t border-gray-200 bg-white px-6 py-4">
+            <ChatInput
+              onSend={onSend}
+              disabled={busy}
+              placeholder={
+                phase === 'onboarding' ? 'Type your answer…' : 'What should I cook tonight?'
+              }
+            />
           </div>
         </div>
-        <StepIndicator current={currentStep} total={STEPS.length} />
+
+        {/* Right: provenance + cards */}
+        <aside className="border-l border-gray-200 bg-white overflow-y-auto px-5 py-5 hidden lg:block">
+          <GroundingBar sources={sources} />
+          <div className="space-y-3 mt-3">
+            {cardsMsg?.cards?.map((card, i) =>
+              card.type === 'place' ? (
+                <PlaceCard
+                  key={i}
+                  card={card}
+                  onTrySomethingElse={() => sendMessage('Try something else — a different option, no repeats.')}
+                />
+              ) : (
+                <RecipeCard
+                  key={i}
+                  card={card}
+                  onTrySomethingElse={() => sendMessage('Try something else — a different option, no repeats.')}
+                />
+              )
+            )}
+          </div>
+          {sources.length > 0 && (
+            <div className="mt-5 pt-4 border-t border-gray-100">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Sources</p>
+              <ol className="space-y-2">
+                {sources.map((s, i) => (
+                  <li key={i} className="text-xs text-gray-600">
+                    <a href={s.url} target="_blank" rel="noreferrer" className="text-violet-700 hover:underline">
+                      [{i + 1}] {s.publisher ? `${s.publisher} — ` : ''}{s.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </aside>
       </div>
 
-      {/* Chat window */}
-      <div className="w-full max-w-xl flex-1 space-y-2 pb-4">
-        {STEPS.slice(0, currentStep + 1).map((step, i) => {
-          const Component = step.component;
-          return (
-            <div key={i}>
-              <Component onNext={goNext} />
-            </div>
-          );
-        })}
-        <div ref={bottomRef} />
-      </div>
+      {showCompare && (
+        <CompareModal
+          profile={profile}
+          initialQuery={lastUserMessage(messages)}
+          onClose={() => setShowCompare(false)}
+        />
+      )}
     </div>
   );
 }
@@ -60,7 +153,7 @@ function ChatFlow() {
 export default function App() {
   return (
     <ChatProvider>
-      <ChatFlow />
+      <ChatPane />
     </ChatProvider>
   );
 }
