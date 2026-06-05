@@ -1,110 +1,92 @@
-# Food Agent — 3-Minute Demo Script
+# BananaBread — Demo Script
 
-**Thesis in one line:** "Most AI eats whatever's loudest on the open web. Ours only eats
-*licensed editorial* from People Inc.'s 15 food brands — and every claim is clickable."
+**Live:** https://bananabread-eta.vercel.app
 
----
-
-## 0. Before you go on stage (setup, ~2 min)
-
-```bash
-# Terminal 1 — backend (live Anthropic + Redpine)
-cd chat-app && npm run api          # → [api] keys present ✓
-
-# Terminal 2 — frontend
-cd chat-app && ./node_modules/.bin/vite   # → http://localhost:5173
-```
-
-- Open **http://localhost:5173** in Chrome, full screen.
-- **Pre-warm** so the first live answer is fast (run once, then leave it):
-  ```bash
-  cd chat-app && npm run smoke      # should print ✅ REAL REDPINE WORK CONFIRMED
-  ```
-- Top-right: **Load persona → "Alex — eats out often, vegetarian"** (skips onboarding).
-- Have this file open on your phone as the talk-track.
+**Thesis in one line:** "Most AI eats whatever's loudest on the open web. BananaBread eats
+*licensed editorial* from People Inc.'s 15 food brands first — and every claim is clickable."
 
 ---
 
-## 1. The hook (20 sec)
+## 0. Before you go on stage
 
-> "This is a food agent. But the only thing it's allowed to know comes from People Inc.'s
-> licensed editorial — Serious Eats, Food & Wine, EatingWell, TripSavvy, and 11 other brands.
-> Watch the right side: every recommendation is grounded in a real article you can click."
-
-Point at the green **"● Grounded in People Inc. editorial"** badge.
+- Open **https://bananabread-eta.vercel.app** in Chrome, full screen. (No localhost needed —
+  it's deployed; functions hit live Redpine + Anthropic.)
+- It greets you automatically (the agent writes the greeting — nothing scripted).
+- Top-right: **Load persona → "Alex — eats out often, vegetarian"** for the dining demo.
+- Latency: editorial answers ~8–11s, web-fallback ~18s. The "typing…" indicator covers it.
 
 ---
 
-## 2. Cook mode — the core loop (40 sec)
+## 1. The hook (20s)
 
-Type:
+> "This is BananaBread. The only thing it's allowed to know comes from People Inc.'s licensed
+> editorial — Serious Eats, Food & Wine, EatingWell, TripSavvy, 11 more. Watch the right side:
+> every recommendation traces to a real article you can click."
+
+---
+
+## 2. Cook mode — grounded in editorial (40s)
+
+Load persona **"Sam — cooks most nights"**, then type:
 > **What should I cook tonight? Got chicken thighs and feeling lazy.**
 
-While it says *"🔍 Searching People Inc. editorial…"*:
-> "It's not guessing. It's running a live retrieval against the licensed corpus right now."
-
-When cards appear:
-- Point at the **brand badge** on the card ("Food & Wine", "Serious Eats").
+- Cards appear with **brown brand badges** (Food & Wine, EatingWell, Serious Eats).
+- Right panel: **"Grounded in N editorial sources across M People Inc. brands."**
 - Click **"Get the full recipe →"** → lands on the real article.
-> "Title, brand, date — and the source is one click away. That's the whole pitch:
-> grounded, and *visibly* grounded."
+> "Title, brand, date — sourced and clickable. Grounded, and *visibly* grounded."
 
 ---
 
-## 3. Eat-out mode — same agent, different mode (35 sec)
+## 3. Eat-out mode — persona-driven + web fallback (45s)  ← the strongest moment
 
-Type:
-> **Actually I don't want to cook. I'm in NYC, somewhere sit-down with a good vibe.**
+Load persona **"Alex — eats out often, vegetarian"**, then:
+> **What can I eat in NYC? I'm in Manhattan and craving ramen.**
 
-> "Same agent — no mode switch, no menu. It decides this is a dining question, searches
-> the travel-dining brands, and comes back with a *place* card: the restaurant, the dish
-> to order, and who recommended it."
+> "Alex eats out, so BananaBread stays in restaurant mode — it gives me *places*, not recipes.
+> People Inc. editorial doesn't cover NYC vegetarian ramen… so watch: it says so, then falls
+> back to a live web search — and labels those sources honestly as **web**, not editorial."
 
-Point at the **place card** + its TripSavvy / Food & Wine badge + **Open in Maps →**.
-
----
-
-## 4. Memory + variety (20 sec)
-
-Type:
-> **Make it a week of dinners, all vegetarian, nothing repeated.**
-
-> "It remembers I'm vegetarian from my profile, and it tracks what it's already suggested —
-> so no repeated cuisine, protein, or technique across the week. Variety is enforced, not hoped for."
+- Cards are **restaurants** (place cards), badges show **🌐 site · web** in gray.
+- Right panel headline flips to **"No editorial coverage — fell back to N web sources."**
+> "It never fakes a source. Editorial first; web as an honest, labeled backstop."
 
 ---
 
-## 5. The money shot — Compare vs vanilla (35 sec)
+## 4. Memory + variety (20s)
 
-Click **"Compare vs vanilla"** (top-right) → it runs the same question two ways.
+> **Make it a week of vegetarian dinners, nothing repeated.**
 
-- Land on **✦ Grounded · People Inc.** (full color, cards, badges).
-- Flip the switch to **⚠ Outdated generic** → the answer drains to **black & white**.
-> "Same question. On the left [flip], a generic model working off stale, unsourced data —
-> no citations, no brands, no way to verify. On the right, ours. *This* is what licensed
-> grounding buys you."
-
-Let the black-and-white sit for a beat. That's the image they'll remember.
+> "It remembers Alex is vegetarian, and tracks what it's already suggested — no repeated
+> cuisine, protein, or technique. Variety is enforced, not hoped for."
 
 ---
 
-## 6. Close (10 sec)
+## 5. The money shot — Compare (35s)
 
-> "Every answer traceable to a brand you trust, a single agent that handles cook / eat-out /
-> plan, and a visible contrast against ungrounded AI. Agents with human taste."
+Click **"Compare vs vanilla"** → **Switch** mode.
+- Lands on **✦ Grounded · People Inc.** (full color, cards, badges).
+- Flip to **⚠ Outdated generic** → the answer drains to **black & white**.
+> "Same question. Flip it — a generic model on stale, unsourced data: no citations, no brands,
+> no way to verify. Flip back: BananaBread. *This* is what licensed grounding buys you."
+
+Let the black-and-white sit for a beat.
 
 ---
 
-## If something breaks (wifi insurance)
+## 6. Close (10s)
 
-- **Live call hangs / errors:** add `?demo=1` to the URL → deterministic cached answers for
-  the 3 demo queries (chicken / Charleston / vegetarian week). Identical UI, no network.
-- **Page won't load:** hard-refresh (Cmd+Shift+R). If still blank, restart Vite.
-- **API down:** Terminal 1 — `npm run api` again.
-- **Never** apologize for latency — say "it's doing a live licensed-data search" (it is).
+> "Every answer traceable to a brand you trust, one agent across cook / eat-out / plan, honest
+> when editorial runs out, and a visible contrast against ungrounded AI. Agents with human taste."
 
-## Demo queries that are known-good
-1. `What should I cook tonight? Got chicken thighs and feeling lazy.`
-2. `I'm in Charleston this weekend. Where should I eat dinner?`
-3. `Build me a week of dinners, vegetarian, under 30 minutes each.`
-4. (Compare modal) reuse #1 for the side-by-side.
+---
+
+## If something breaks
+- **A query hangs:** refresh and re-ask. Web-fallback queries legitimately take ~18s.
+- **Page issue:** hard-refresh (Cmd+Shift+R).
+- Never apologize for the wait — "it's running a live licensed-data search" (it is).
+
+## Known-good demo queries
+1. `What should I cook tonight? Got chicken thighs and feeling lazy.`  (Sam → editorial recipes)
+2. `What can I eat in NYC? I'm in Manhattan and craving ramen.`  (Alex → restaurants, web fallback)
+3. `Make it a week of vegetarian dinners, nothing repeated.`  (variety)
+4. Compare modal, reuse #1 for the side-by-side.

@@ -9,7 +9,7 @@ export default function PlaceCard({ card, onTrySomethingElse }) {
       <div className="px-5 py-4">
         <div className="flex items-start justify-between gap-3 mb-2">
           <h3 className="text-sm font-semibold text-gray-900 leading-snug">{card.name}</h3>
-          <SourceBadge brand={card.brand} url={card.url} />
+          <SourceBadge brand={card.brand} url={card.url} web={card.web} />
         </div>
         {card.dish && (
           <p className="text-sm text-gray-900 font-medium mb-1">Order: {card.dish}</p>

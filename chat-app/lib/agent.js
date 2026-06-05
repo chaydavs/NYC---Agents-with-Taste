@@ -4,7 +4,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { AGENT_SYSTEM_PROMPT, VANILLA_PROMPT, buildContextBlock } from './prompt.js';
-import { redpineServer, extractSources, extractWebSources, brandKey } from './redpine.js';
+import { redpineServer, extractSources, extractWebSources, brandKey, hostOf } from './redpine.js';
 import { verifyCards } from './verify.js';
 
 // Fallback search when licensed editorial has no coverage (e.g. a specific city's
@@ -103,16 +103,21 @@ function overlap(a, b) {
 function enrichCards(cards, sources) {
   return (cards || []).map((card) => {
     const ck = brandKey(card.brand);
-    const candidates = sources.filter((s) => {
+    const hk = brandKey(hostOf(card.url));
+    const matches = (s) => {
       const sk = brandKey(s.publisher);
-      return sk && ck && (sk.includes(ck) || ck.includes(sk));
-    });
+      const sh = brandKey(hostOf(s.url));
+      const hit = (a, b) => a && b && (a.includes(b) || b.includes(a));
+      return hit(sk, ck) || hit(sh, ck) || hit(sk, hk) || hit(sh, hk);
+    };
+    const candidates = sources.filter(matches);
     if (candidates.length === 0) return card;
     const label = card.title || card.name || card.dish || '';
     const best = candidates.reduce((a, b) =>
       overlap(label, b.title) >= overlap(label, a.title) ? b : a
     );
-    return { ...card, url: card.url || best.url, published_at: best.published_at };
+    // Tag the card's source tier so the UI can label web vs. editorial.
+    return { ...card, url: card.url || best.url, published_at: best.published_at, web: !!best.web };
   });
 }
 

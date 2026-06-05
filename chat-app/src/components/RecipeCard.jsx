@@ -6,7 +6,7 @@ export default function RecipeCard({ card, onTrySomethingElse }) {
       <div className="px-5 py-4">
         <div className="flex items-start justify-between gap-3 mb-2">
           <h3 className="text-sm font-semibold text-gray-900 leading-snug">{card.title}</h3>
-          <SourceBadge brand={card.brand} url={card.url} />
+          <SourceBadge brand={card.brand} url={card.url} web={card.web} />
         </div>
         <p className="text-sm text-gray-600 leading-relaxed mb-3">{card.why}</p>
         <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
