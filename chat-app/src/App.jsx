@@ -88,7 +88,11 @@ function ChatPane() {
                     text={m.text || (m.streaming ? '🔍 Searching People Inc. editorial…' : '')}
                   />
                   {m.cards && m.cards.length > 0 && (
-                    <div className="ml-11 mb-4 space-y-2">
+                    <div className="ml-11 mb-4">
+                      <p className="text-[11px] font-semibold text-violet-600 uppercase tracking-wide mb-2">
+                        {m.cards.length} grounded recommendation{m.cards.length > 1 ? 's' : ''}
+                      </p>
+                      <div className="space-y-2 border-l-2 border-violet-100 pl-3">
                       {m.cards.map((card, ci) =>
                         card.type === 'place' ? (
                           <PlaceCard
@@ -108,6 +112,7 @@ function ChatPane() {
                           />
                         )
                       )}
+                      </div>
                     </div>
                   )}
                 </div>
