@@ -1,66 +1,100 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChatProvider } from './context/ChatContext';
+import { ChatProvider, useChat } from './context/ChatContext';
 import StepIndicator from './components/StepIndicator';
-import StepUserInfo from './steps/StepUserInfo';
-import StepFitness from './steps/StepFitness';
+import ProfileBar from './components/ProfileBar';
+import StepName from './steps/StepName';
+import StepGoalsTraining from './steps/StepGoalsTraining';
+import StepDietary from './steps/StepDietary';
 import StepLocation from './steps/StepLocation';
-import StepDietaryRestrictions from './steps/StepDietaryRestrictions';
-import StepSummary from './steps/StepSummary';
 
-const STEPS = [
-  { component: StepUserInfo, label: 'About you' },
-  { component: StepFitness, label: 'Fitness & Diet' },
-  { component: StepLocation, label: 'Location' },
-  { component: StepDietaryRestrictions, label: 'Restrictions' },
-  { component: StepSummary, label: 'Summary' },
-];
+const INTAKE_STEPS = [StepName, StepGoalsTraining, StepDietary, StepLocation];
 
-function ChatFlow() {
-  const [currentStep, setCurrentStep] = useState(0);
+// ─── Intake flow (shown before profile is complete) ───────────────────────────
+function IntakeFlow({ onComplete }) {
+  const [step, setStep] = useState(0);
   const bottomRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [currentStep]);
+  }, [step]);
 
-  const goNext = () => setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1));
+  const goNext = () => {
+    if (step < INTAKE_STEPS.length - 1) {
+      setStep((s) => s + 1);
+    } else {
+      onComplete();
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
-      {/* Header */}
-      <div className="w-full max-w-xl mb-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm">
-            A
+    <div className="w-full max-w-xl">
+      <StepIndicator current={step} total={INTAKE_STEPS.length} />
+      <div className="space-y-2 pb-10">
+        {INTAKE_STEPS.slice(0, step + 1).map((Step, i) => (
+          <div key={i}>
+            <Step onNext={goNext} />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-800">Wellness Assistant</p>
-            <p className="text-xs text-green-500 font-medium">● Online</p>
-          </div>
-        </div>
-        <StepIndicator current={currentStep} total={STEPS.length} />
-      </div>
-
-      {/* Chat window */}
-      <div className="w-full max-w-xl flex-1 space-y-2 pb-4">
-        {STEPS.slice(0, currentStep + 1).map((step, i) => {
-          const Component = step.component;
-          return (
-            <div key={i}>
-              <Component onNext={goNext} />
-            </div>
-          );
-        })}
+        ))}
         <div ref={bottomRef} />
       </div>
     </div>
   );
 }
 
+// ─── Post-intake view ─────────────────────────────────────────────────────────
+function PostIntake({ onReset }) {
+  const { profile } = useChat();
+  return (
+    <div className="w-full max-w-xl space-y-4">
+      <ProfileBar onReset={onReset} />
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm text-center space-y-2">
+        <p className="text-2xl">🎉</p>
+        <p className="text-sm font-semibold text-gray-800">
+          All set, {profile.name}!
+        </p>
+        <p className="text-xs text-gray-400 leading-relaxed">
+          Your profile is saved and will persist on refresh.
+          Tap any chip above to update your details.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Inner app (has access to context) ───────────────────────────────────────
+function AppInner() {
+  const { profile, update, resetProfile } = useChat();
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
+      {/* Header */}
+      <div className="w-full max-w-xl mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm select-none">
+            W
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-800">Wellness Concierge</p>
+            <p className="text-xs text-green-500 font-medium">● Online</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Body */}
+      {profile.intakeComplete ? (
+        <PostIntake onReset={resetProfile} />
+      ) : (
+        <IntakeFlow onComplete={() => update({ intakeComplete: true })} />
+      )}
+    </div>
+  );
+}
+
+// ─── Root export ──────────────────────────────────────────────────────────────
 export default function App() {
   return (
     <ChatProvider>
-      <ChatFlow />
+      <AppInner />
     </ChatProvider>
   );
 }

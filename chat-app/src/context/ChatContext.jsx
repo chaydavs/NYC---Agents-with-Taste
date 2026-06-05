@@ -1,34 +1,56 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+
+const STORAGE_KEY = 'wellness_profile_v2';
+
+export const DEFAULT_PROFILE = {
+  name: '',
+  // Goals & Training
+  fitnessGoal: '',
+  trainingTypes: [],
+  daysPerWeek: '',
+  targetNote: '',
+  // Dietary
+  dietStyle: '',
+  restrictions: [],
+  dislikes: '',
+  // Location
+  homeCity: '',
+  travelingTo: '',
+  // Meta
+  intakeComplete: false,
+};
 
 const ChatContext = createContext(null);
 
 export function ChatProvider({ children }) {
-    const [userData, setUserData] = useState({
-        // Step 1 – User Info
-        name: '',
-        age: '',
-        gender: '',
-        // Step 2 – Fitness & Diet
-        fitnessGoal: '',
-        activityLevel: '',
-        dietType: '',
-        // Step 3 – Location / Travel
-        travelling: null,
-        location: '',
-        // Step 4 – Dietary Restrictions
-        restrictions: [],
-        otherRestrictions: '',
-    });
+  const [profile, setProfile] = useState(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return DEFAULT_PROFILE;
+      return { ...DEFAULT_PROFILE, ...JSON.parse(raw) };
+    } catch {
+      return DEFAULT_PROFILE;
+    }
+  });
 
-    const update = (fields) => setUserData((prev) => ({ ...prev, ...fields }));
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  }, [profile]);
 
-    return (
-        <ChatContext.Provider value={{ userData, update }}>
-            {children}
-        </ChatContext.Provider>
-    );
+  const update = (fields) => setProfile((prev) => ({ ...prev, ...fields }));
+
+  const resetProfile = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setProfile(DEFAULT_PROFILE);
+  };
+
+  return (
+    <ChatContext.Provider value={{ profile, update, resetProfile }}>
+      {children}
+    </ChatContext.Provider>
+  );
 }
 
 export function useChat() {
-    return useContext(ChatContext);
+  return useContext(ChatContext);
 }

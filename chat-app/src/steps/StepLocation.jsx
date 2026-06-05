@@ -4,77 +4,81 @@ import BotBubble from '../components/BotBubble';
 import UserBubble from '../components/UserBubble';
 
 export default function StepLocation({ onNext }) {
-    const { userData, update } = useChat();
-    const [phase, setPhase] = useState(0); // 0=travelling?, 1=location input
-    const [travelling, setTravelling] = useState(null);
-    const [location, setLocation] = useState('');
-    const [submitted, setSubmitted] = useState({ travelling: false, location: false });
+    const { update } = useChat();
+    const [homeCity, setHomeCity] = useState('');
+    const [homeDone, setHomeDone] = useState(false);
+    const [travelingTo, setTravelingTo] = useState('');
+    const [submitted, setSubmitted] = useState(false);
 
-    const handleTravelling = (val) => {
-        setTravelling(val);
-        setSubmitted((s) => ({ ...s, travelling: true }));
-        if (val === false) {
-            update({ travelling: false, location: 'Home / local' });
-            setTimeout(() => onNext(), 600);
-        } else {
-            setPhase(1);
-        }
+    const handleHomeSubmit = (e) => {
+        e.preventDefault();
+        if (!homeCity.trim()) return;
+        setHomeDone(true);
     };
 
-    const handleLocationSubmit = (e) => {
+    const finalize = (travel) => {
+        update({ homeCity: homeCity.trim(), travelingTo: travel.trim() });
+        setSubmitted(true);
+        setTimeout(onNext, 400);
+    };
+
+    const handleTravelSubmit = (e) => {
         e.preventDefault();
-        if (!location.trim()) return;
-        setSubmitted((s) => ({ ...s, location: true }));
-        update({ travelling: true, location: location.trim() });
-        setTimeout(() => onNext(), 600);
+        finalize(travelingTo);
     };
 
     return (
         <div className="space-y-1">
-            <BotBubble text="Are you currently travelling or away from home?" />
-            {submitted.travelling && <UserBubble text={travelling ? "Yes, I'm travelling" : "No, I'm at home"} />}
-
-            {phase === 1 && (
-                <>
-                    <BotBubble text="Where are you headed? I'll factor that into your recommendations." />
-                    {submitted.location && <UserBubble text={location} />}
-                </>
-            )}
-
-            {phase === 0 && !submitted.travelling && (
-                <div className="flex gap-3 mt-4">
-                    <button
-                        onClick={() => handleTravelling(true)}
-                        className="flex-1 border border-violet-400 text-violet-700 hover:bg-violet-50 text-sm px-4 py-3 rounded-xl transition font-medium"
-                    >
-                        ✈️ Yes, travelling
-                    </button>
-                    <button
-                        onClick={() => handleTravelling(false)}
-                        className="flex-1 border border-violet-400 text-violet-700 hover:bg-violet-50 text-sm px-4 py-3 rounded-xl transition font-medium"
-                    >
-                        🏠 No, at home
-                    </button>
-                </div>
-            )}
-
-            {phase === 1 && !submitted.location && (
-                <form onSubmit={handleLocationSubmit} className="flex gap-2 mt-4">
+            {/* Q1 – home city */}
+            <BotBubble text="Almost done! Where are you based? I'll use this to tailor local restaurant and grocery picks." />
+            {homeDone && <UserBubble text={homeCity} />}
+            {!homeDone && (
+                <form onSubmit={handleHomeSubmit} className="flex gap-2 mt-3">
                     <input
                         autoFocus
-                        className="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
-                        placeholder="City, country, or region…"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
+                        className="flex-1 border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 bg-white"
+                        placeholder="e.g. New York City"
+                        value={homeCity}
+                        onChange={(e) => setHomeCity(e.target.value)}
                     />
                     <button
                         type="submit"
-                        className="bg-violet-600 hover:bg-violet-700 text-white text-sm px-5 py-2 rounded-xl transition"
+                        className="bg-violet-600 hover:bg-violet-700 text-white text-sm px-4 py-2 rounded-xl transition font-medium"
                     >
-                        Send
+                        →
                     </button>
                 </form>
             )}
+
+            {/* Q2 – traveling? */}
+            {homeDone && !submitted && (
+                <>
+                    <BotBubble text="Are you traveling anywhere soon? I can adapt recommendations to wherever you actually are." />
+                    <form onSubmit={handleTravelSubmit} className="flex gap-2 mt-3">
+                        <input
+                            autoFocus
+                            className="flex-1 border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 bg-white"
+                            placeholder="Traveling to… (optional)"
+                            value={travelingTo}
+                            onChange={(e) => setTravelingTo(e.target.value)}
+                        />
+                        <button
+                            type="submit"
+                            className="bg-violet-600 hover:bg-violet-700 text-white text-sm px-4 py-2 rounded-xl transition font-medium"
+                        >
+                            →
+                        </button>
+                    </form>
+                    <button
+                        type="button"
+                        onClick={() => finalize('')}
+                        className="mt-1.5 text-xs text-gray-400 hover:text-gray-600 transition"
+                    >
+                        Not traveling right now
+                    </button>
+                </>
+            )}
+            {submitted && travelingTo && <UserBubble text={`Traveling to ${travelingTo}`} />}
         </div>
     );
 }
